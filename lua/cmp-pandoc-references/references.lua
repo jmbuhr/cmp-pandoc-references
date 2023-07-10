@@ -79,17 +79,30 @@ local function parse_ref(lines)
 	end
 end
 
+
 -- Returns the entries as a table, clearing entries beforehand
 function M.get_entries(lines)
-	local location = locate_bib(lines)
-	entries = {}
+  local location = locate_bib(lines)
+  entries = {}
 
-	if location and vim.fn.filereadable(location) == 1 then
-		parse_bib(location)
-	end
-	parse_ref(lines)
+  -- Check if global_bib_file is set
+  if vim.g.global_bib_file then
+    local global_location = vim.g.global_bib_file
 
-	return entries
+    -- Check if the global .bib file is readable
+    if vim.fn.filereadable(global_location) == 1 then
+      parse_bib(global_location)  -- Parse the global .bib file
+    end
+  else
+    -- Global .bib file is not set, fallback to local .bib file
+    if location and vim.fn.filereadable(location) == 1 then
+      parse_bib(location)  -- Parse the local .bib file
+    end
+  end
+
+  parse_ref(lines)
+
+  return entries
 end
 
 return M
