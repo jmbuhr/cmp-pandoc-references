@@ -15,7 +15,7 @@ Assuming Packer:
 use({
   "hrsh7th/nvim-cmp",
   requires = {
-    { "jc-doyle/cmp-pandoc-references" }
+    { "jmbuhr/cmp-pandoc-references" }
   }
 })
 ```
