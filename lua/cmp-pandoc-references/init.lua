@@ -26,8 +26,10 @@ source.complete = function(self, request, callback)
     self.items = entries
     callback(self.items)
 
-    -- Call the function to update the local bib file upon completion
-    update_local_bib.update_local_bib_file()
+    -- Check if vim.g.global_bib_file is set and then call the function to update the local bib file
+    if vim.g.global_bib_file then
+        update_local_bib.update_local_bib_file()
+    end
   end
 end
 
