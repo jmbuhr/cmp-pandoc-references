@@ -25,11 +25,11 @@ source.complete = function(self, request, callback)
   if entries then
     self.items = entries
     callback(self.items)
+
+    -- Call the function to update the local bib file upon completion
+    update_local_bib.update_local_bib_file()
   end
 end
-
--- Add command here to call the function on demand
-vim.cmd("command! UpdateLocalBib lua update_local_bib.update_local_bib_file")
 
 return source
 
