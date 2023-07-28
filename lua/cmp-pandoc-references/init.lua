@@ -1,5 +1,6 @@
 local source = {}
 local refs = require 'cmp-pandoc-references.references'
+local update_local_bib = require 'cmp-pandoc-references.update-local-bib'
 
 source.new = function()
 	return setmetatable({}, {__index = source})
@@ -24,4 +25,8 @@ source.complete = function(self, request, callback)
   end
 end
 
+-- Add command here to call the function on demand
+vim.cmd("command! UpdateLocalBib lua update_local_bib.update_local_bib_file")
+
 return source
+
