@@ -71,15 +71,23 @@ local function insert_reference_from_global_bib(key, global_bib, local_bib)
 end
 
 -- Define function to update local .bib file
-function M.update_local_bib_file(input_file, global_bib_file, output_bib_file)
+function M.update_local_bib_file(specific_key, output_bib_file, global_bib_file)
     -- Set default arguments if not provided
-    input_file = input_file or vim.fn.expand("%") -- Current buffer's file path
     global_bib_file = global_bib_file or vim.g.global_bib_file -- Default to globally defined bib file
     output_bib_file = output_bib_file or vim.fn.expand("%:p:h") .. "/references.bib" -- Current buffer's directory + references.bib
 
-    local citation_keys = extract_citation_keys(input_file)
+    -- Read buffer content into a string
+    local buffer_content = table.concat(vim.fn.getline(1, "$"), "\n")
+
+    local citation_keys
+    if specific_key then
+        citation_keys = {specific_key}  -- Use the specific_key if provided
+    else
+        citation_keys = extract_citation_keys(buffer_content)
+    end
+
     check_references_file(output_bib_file)
-    
+
     for _, key in ipairs(citation_keys) do
         if not is_citation_key_present(key, output_bib_file) then
             print("Copying reference for key: " .. key)
