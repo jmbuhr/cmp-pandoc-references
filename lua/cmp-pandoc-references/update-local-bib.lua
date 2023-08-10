@@ -71,10 +71,9 @@ local function insert_reference_from_global_bib(key, global_bib, local_bib)
 end
 
 -- Define function to update local .bib file
-function M.update_local_bib_file(specific_key, output_bib_file, global_bib_file)
+function M.update_local_bib_file(specific_key, global_bib_file)
     -- Set default arguments if not provided
     global_bib_file = global_bib_file or vim.g.global_bib_file -- Default to globally defined bib file
-    output_bib_file = output_bib_file or vim.fn.expand("%:p:h") .. "/references.bib" -- Current buffer's directory + references.bib
 
     -- Read buffer content into a string
     local buffer_content = table.concat(vim.fn.getline(1, "$"), "\n")
@@ -84,6 +83,16 @@ function M.update_local_bib_file(specific_key, output_bib_file, global_bib_file)
         citation_keys = {specific_key}  -- Use the specific_key if provided
     else
         citation_keys = extract_citation_keys(buffer_content)
+    end
+
+    -- set local bib file to references.bib if no bibliography key set in yaml
+    local output_bib_file = vim.fn.expand("%:p:h") .. "/references.bib" -- Current buffer's directory + references.bib
+
+    -- Check if "bibliography:" key is present in the yaml header
+    local yaml_header = buffer_content:match("^%-%-%-%s*(.-)\n%-%-%-")
+    local bibliography_key = yaml_header and yaml_header:match("bibliography:%s*(%S+)")
+    if bibliography_key then
+        output_bib_file = vim.fn.expand("%:p:h") .. "/" .. bibliography_key
     end
 
     check_references_file(output_bib_file)
