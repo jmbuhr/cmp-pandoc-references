@@ -1,26 +1,22 @@
 # cmp-pandoc-references
 
-A source for [nvim-cmp](https://github.com/hrsh7th/nvim-cmp), providing completion for bibliography, reference and cross-ref items.
+Based on https://github.com/jc-doyle/cmp-pandoc-referencesc.
+A source for [nvim-cmp](https://github.com/hrsh7th/nvim-cmp) or [blink.cmp](https://github.com/saghen/blink.cmp).
+Provides completion for bibliography, reference and cross-ref items.
 
 ## Demo
+
 ![cmp-pandoc-references](https://user-images.githubusercontent.com/59124867/134782887-33872ae0-a23e-4f5b-99cd-74c3b0e6f497.gif)
 
-Note I have overridden the `ItemKinds`, they are set to `cmp.lsp.CompletionItemKind.Reference` by default.
+## Installation
 
-## Installation & Usage
+Install with your favorite package manager from:
 
-Assuming Packer:
-
-``` lua
-use({
-  "hrsh7th/nvim-cmp",
-  requires = {
-    { "jmbuhr/cmp-pandoc-references" }
-  }
-})
+```lua
+"jmbuhr/cmp-pandoc-references"
 ```
 
-Add the source:
+## nvim-cmp
 
 ``` lua
 require('cmp').setup {
@@ -30,11 +26,19 @@ require('cmp').setup {
 }
 ```
 
+## blink.cmp
+
+```lua
+-- ...
+    references = {
+        name = "pandoc_references",
+        module = "cmp-pandoc-references.blink",
+    },
+-- ...
+```
+
 ## Explanation & Limitations
 
-This source parses and validates the `bibliography: [your/bib/location.bib]` YAML metadata field, to determine the destination of the file (see [Pandoc](https://pandoc.org/MANUAL.html#specifying-bibliographic-data)). If it is not included (or you specify it through a command-line argument), no bibliography completion items will be found.
-
-(I use the metadata block to reference bibliographies, if you'd like automatic scanning of directories/sub-directories, feel free to submit a PR)
-
-
+This source parses and validates the `bibliography: <your/bib/location.bib>` YAML metadata field, to determine the destination of the file (see [Pandoc](https://pandoc.org/MANUAL.html#specifying-bibliographic-data)).
+If it is not included (or you specify it through a command-line argument), no bibliography completion items will be found.
 
