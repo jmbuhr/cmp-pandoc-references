@@ -59,7 +59,10 @@ local function get_bib_path(lines)
 	-- return nil and log if bib not specified
 	if not initial_bib then
 		if should_log() then
-			vim.log.info("cmp-pandoc-references: No bibliography file specification found in document")
+			vim.notify(
+				"cmp-pandoc-references: No bibliography file specification found in document",
+				vim.log.levels.DEBUG
+			)
 		end
 		return nil
 	end
@@ -79,12 +82,13 @@ local function get_bib_path(lines)
 	end
 	-- If we get here, no readable file was found
 	if should_log() then
-		vim.log.info(
+		vim.notify(
 			string.format(
 				"cmp-pandoc-references: Bibliography file not found. Tried:\n- %s\n- %s",
 				direct_path,
 				full_path
-			)
+			),
+			vim.log.levels.WARN
 		)
 	end
 	return nil
@@ -106,7 +110,7 @@ local function parse_bib(filename)
 	local file = io.open(filename, "rb")
 	if file == nil then
 		if should_log() then
-			vim.log.info(string.format("Unable to open bibliography file at: %s", filename))
+			vim.notify(string.format("Unable to open bibliography file at: %s", filename), vim.log.levels.WARN)
 		end
 		return
 	end
@@ -119,39 +123,39 @@ local function parse_bib(filename)
 		local author = clean(bibentry:match('author%s*=%s*["{]*(.-)["}],?')) or ""
 		local year = bibentry:match('year%s*=%s*["{]?(%d+)["}]?,?') or ""
 
-    local doc = { '**' .. title .. '**', '', '*' .. author .. '*', year }
+		local doc = { "**" .. title .. "**", "", "*" .. author .. "*", year }
 
-    --- @type lsp.CompletionItem
-    local entry = {
-      label = '@' .. bibentry:match('@%w+{(.-),'),
-      kind = cmp.lsp.CompletionItemKind.Reference,
-      insertTextFormat = vim.lsp.protocol.InsertTextFormat.PlainText,
-      documentation = {
-        kind = cmp.lsp.MarkupKind.Markdown,
-        value = table.concat(doc, '\n')
-      },
-    }
+		--- @type lsp.CompletionItem
+		local entry = {
+			label = "@" .. bibentry:match("@%w+{(.-),"),
+			kind = cmp.lsp.CompletionItemKind.Reference,
+			insertTextFormat = vim.lsp.protocol.InsertTextFormat.PlainText,
+			documentation = {
+				kind = cmp.lsp.MarkupKind.Markdown,
+				value = table.concat(doc, "\n"),
+			},
+		}
 
-    table.insert(entries, entry)
-    ::continue::
-  end
+		table.insert(entries, entry)
+		::continue::
+	end
 end
 
 -- Parses the references in the current file, formatting for completion
 local function parse_ref(lines)
-  local words = table.concat(lines, '\n')
-  for ref in words:gmatch('{#(%a+[:%-][%w_-]+)') do
-    local entry = {}
-    entry.label = '@' .. ref
-    entry.kind = cmp.lsp.CompletionItemKind.Reference
-    table.insert(entries, entry)
-  end
-  for ref in words:gmatch('#| label: (%a+[:%-][%w_-]+)') do
-    local entry = {}
-    entry.label = '@' .. ref
-    entry.kind = cmp.lsp.CompletionItemKind.Reference
-    table.insert(entries, entry)
-  end
+	local words = table.concat(lines, "\n")
+	for ref in words:gmatch("{#(%a+[:%-][%w_-]+)") do
+		local entry = {}
+		entry.label = "@" .. ref
+		entry.kind = cmp.lsp.CompletionItemKind.Reference
+		table.insert(entries, entry)
+	end
+	for ref in words:gmatch("#| label: (%a+[:%-][%w_-]+)") do
+		local entry = {}
+		entry.label = "@" .. ref
+		entry.kind = cmp.lsp.CompletionItemKind.Reference
+		table.insert(entries, entry)
+	end
 end
 
 -- Returns the entries as a table, clearing entries beforehand
@@ -159,14 +163,14 @@ function M.get_entries(lines)
 	local location = get_bib_path(lines)
 	entries = {}
 
-  entries = {}
+	entries = {}
 
-  if location and vim.fn.filereadable(location) == 1 then
-    parse_bib(location)
-  end
-  parse_ref(lines)
+	if location and vim.fn.filereadable(location) == 1 then
+		parse_bib(location)
+	end
+	parse_ref(lines)
 
-  return entries
+	return entries
 end
 
 return M
