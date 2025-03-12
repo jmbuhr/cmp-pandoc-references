@@ -1,6 +1,6 @@
 # cmp-pandoc-references
 
-Based on https://github.com/jc-doyle/cmp-pandoc-referencesc.
+Based on https://github.com/jc-doyle/cmp-pandoc-references.
 A source for [nvim-cmp](https://github.com/hrsh7th/nvim-cmp) or [blink.cmp](https://github.com/saghen/blink.cmp).
 Provides completion for bibliography, reference and cross-ref items.
 
