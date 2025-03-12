@@ -2,6 +2,8 @@ local cmp = require 'cmp'
 
 local entries = {}
 local M = {}
+local last_log_time = 0
+local LOG_THRESHOLD = 900 -- seconds (15 minutes)
 
 -- (Crudely) Locates the bibliography
 local function locate_bib(lines)
@@ -24,6 +26,64 @@ local function locate_bib(lines)
       end
     end
   end
+local function sanitize_path(path)
+	-- Sanitize the path: remove quotes and trim whitespace
+	-- This duplicates some functionality from locate_quarto_bib
+	path = path:gsub('^%s*["]?(.-)["\']?%s*$', "%1")
+	-- Convert escaped spaces to regular spaces
+	path = path:gsub("\\ ", " ")
+	-- Unescape backslashes
+	path = path:gsub('\\([/"])', "%1")
+	return path
+end
+
+--- Resolves bibliography file path from string or function
+--- @param lines table The lines of the current buffer to parse
+--- @return string|nil Absolute path to bibliography file or nil if not found
+local function get_bib_path(lines)
+	-- locate bib reference as before
+	local initial_bib = locate_bib(lines)
+	-- Determine if we should log a message
+	local function should_log()
+		local current_time = os.time()
+		if current_time - last_log_time >= LOG_THRESHOLD then
+			last_log_time = current_time
+			return true
+		end
+		return false
+	end
+	-- return nil and log if bib not specified
+	if not initial_bib then
+		if should_log() then
+			vim.log.info("cmp-pandoc-references: No bibliography file specification found in document")
+		end
+		return nil
+	end
+	-- Sanitize and expand the path
+	local sanitized_path = sanitize_path(initial_bib)
+	-- Try direct, sanitized, path first
+	local direct_path = vim.fn.expand(sanitized_path)
+	if vim.fn.filereadable(direct_path) == 1 then
+		return vim.fn.fnamemodify(direct_path, ":p")
+	end
+	-- Try relative to buffer directory
+	local buf_dir = vim.fn.expand("%:p:h")
+	local full_path = buf_dir .. "/" .. sanitized_path
+	full_path = vim.fn.expand(full_path)
+	if vim.fn.filereadable(full_path) == 1 then
+		return vim.fn.fnamemodify(full_path, ":p")
+	end
+	-- If we get here, no readable file was found
+	if should_log() then
+		vim.log.info(
+			string.format(
+				"cmp-pandoc-references: Bibliography file not found. Tried:\n- %s\n- %s",
+				direct_path,
+				full_path
+			)
+		)
+	end
+	return nil
 end
 
 -- Remove newline & excessive whitespace
@@ -87,7 +147,7 @@ end
 
 -- Returns the entries as a table, clearing entries beforehand
 function M.get_entries(lines)
-	local location = locate_bib(lines)
+	local location = get_bib_path(lines)
 	entries = {}
 
 	if location and vim.fn.filereadable(location) == 1 then
