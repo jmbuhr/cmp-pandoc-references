@@ -1,4 +1,9 @@
-local cmp = require 'cmp'
+-- Check if cmp is installed before attempting to use it
+-- We might only be the source for blink.cmp
+local use_cmp, cmp = pcall(require, "cmp")
+if not use_cmp then
+  cmp = require("blink.cmp.types")
+end
 
 --- @type lsp.CompletionItem[]
 local entries = {}
@@ -56,14 +61,24 @@ local function parse_bib(filename)
 
     local doc = { '**' .. title .. '**', '', '*' .. author .. '*', year }
 
+    -- Get the right entry/documentation kind based on whether we are using cmp or blink
+    local entry_kind, documentation_kind
+    if use_cmp then
+      entry_kind = cmp.lsp.CompletionItemKind.Reference
+      documentation_kind = cmp.lsp.MarkupKind.Markdown
+    else
+      entry_kind = cmp.CompletionItemKind.Reference
+      documentation_kind = "markdown"
+    end
+
     --- @type lsp.CompletionItem
     local entry = {
-      label = '@' .. bibentry:match('@%w+{(.-),'),
-      kind = cmp.lsp.CompletionItemKind.Reference,
+      label = "@" .. bibentry:match("@%w+{(.-),"),
+      kind = entry_kind,
       insertTextFormat = vim.lsp.protocol.InsertTextFormat.PlainText,
       documentation = {
-        kind = cmp.lsp.MarkupKind.Markdown,
-        value = table.concat(doc, '\n')
+        kind = documentation_kind,
+        value = table.concat(doc, "\n"),
       },
     }
 
@@ -74,17 +89,26 @@ end
 
 -- Parses the references in the current file, formatting for completion
 local function parse_ref(lines)
-  local words = table.concat(lines, '\n')
-  for ref in words:gmatch('{#(%a+[:%-][%w_-]+)') do
+  local words = table.concat(lines, "\n")
+
+  -- Get the right entry kind based on whether we are using cmp or blink
+  local entry_kind
+  if use_cmp then
+    entry_kind = cmp.lsp.CompletionItemKind.Reference
+  else
+    entry_kind = cmp.CompletionItemKind.Reference
+  end
+
+  for ref in words:gmatch("{#(%a+[:%-][%w_-]+)") do
     local entry = {}
-    entry.label = '@' .. ref
-    entry.kind = cmp.lsp.CompletionItemKind.Reference
+    entry.label = "@" .. ref
+    entry.kind = entry_kind
     table.insert(entries, entry)
   end
-  for ref in words:gmatch('#| label: (%a+[:%-][%w_-]+)') do
+  for ref in words:gmatch("#| label: (%a+[:%-][%w_-]+)") do
     local entry = {}
-    entry.label = '@' .. ref
-    entry.kind = cmp.lsp.CompletionItemKind.Reference
+    entry.label = "@" .. ref
+    entry.kind = entry_kind
     table.insert(entries, entry)
   end
 end
