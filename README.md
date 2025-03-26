@@ -18,7 +18,7 @@ Install with your favorite package manager from:
 
 ## nvim-cmp
 
-``` lua
+```lua
 require('cmp').setup {
   sources = {
     { name = 'pandoc_references' }
@@ -41,4 +41,3 @@ require('cmp').setup {
 
 This source parses and validates the `bibliography: <your/bib/location.bib>` YAML metadata field, to determine the destination of the file (see [Pandoc](https://pandoc.org/MANUAL.html#specifying-bibliographic-data)).
 If it is not included (or you specify it through a command-line argument), no bibliography completion items will be found.
-
