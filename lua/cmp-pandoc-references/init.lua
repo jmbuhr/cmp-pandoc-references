@@ -2,16 +2,16 @@ local source = {}
 local refs = require 'cmp-pandoc-references.references'
 
 source.new = function()
-  return setmetatable({}, {__index = source})
+  return setmetatable({}, { __index = source })
 end
 
 -- Add another filetype if needed
 source.is_available = function()
-  return vim.o.filetype == "pandoc"
-    or vim.o.filetype == "markdown"
-    or vim.o.filetype == "rmd"
-    or vim.o.filetype == "quarto"
-    or vim.o.filetype == "typst"
+  return vim.o.filetype == 'pandoc'
+    or vim.o.filetype == 'markdown'
+    or vim.o.filetype == 'rmd'
+    or vim.o.filetype == 'quarto'
+    or vim.o.filetype == 'typst'
 end
 
 source.get_keyword_pattern = function()
