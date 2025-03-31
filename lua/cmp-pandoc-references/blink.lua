@@ -22,10 +22,8 @@ function source:get_trigger_characters()
 end
 
 function source:get_completions(ctx, callback)
-  local is_char_trigger = vim.list_contains(
-    self:get_trigger_characters(),
-    ctx.line:sub(ctx.bounds.start_col - 1, ctx.bounds.start_col - 1)
-  )
+  local is_char_trigger =
+    vim.list_contains(self:get_trigger_characters(), ctx.line:sub(ctx.bounds.start_col - 1, ctx.bounds.start_col - 1))
   if not is_char_trigger then
     callback({
       items = {},
