@@ -36,7 +36,13 @@ function source:get_completions(ctx, callback)
   end
 
   local lines = vim.api.nvim_buf_get_lines(ctx.bufnr or 0, 0, -1, false)
-  local entries = refs.get_entries(lines)
+
+  local blink = require("blink.cmp.types")
+  local fields = {
+    entry_kind = blink.CompletionItemKind.Reference,
+    documentation_kind = "markdown",
+  }
+  local entries = refs.get_entries(lines, fields)
 
   --- @type lsp.CompletionItem[]
   local items = {}
