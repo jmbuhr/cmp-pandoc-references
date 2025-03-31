@@ -15,11 +15,11 @@ local function locate_bib(lines)
   -- no bib locally defined
   -- test for quarto project-wide definition
   local fname = vim.api.nvim_buf_get_name(0)
-  local root = require("lspconfig.util").root_pattern("_quarto.yml")(fname)
+  local root = require('lspconfig.util').root_pattern('_quarto.yml')(fname)
   if root then
-    local file = root .. "/_quarto.yml"
+    local file = root .. '/_quarto.yml'
     for line in io.lines(file) do
-      local location = string.match(line, "bibliography: (%g+)")
+      local location = string.match(line, 'bibliography: (%g+)')
       if location then
         return location
       end
