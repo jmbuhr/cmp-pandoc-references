@@ -73,6 +73,7 @@ end
 -- Parses the references in the current file, formatting for completion
 local function parse_ref(lines, fields)
   local words = table.concat(lines, '\n')
+
   for ref in words:gmatch '{#(%a+[:%-][%w_-]+)' do
     local entry = {}
     entry.label = '@' .. ref
