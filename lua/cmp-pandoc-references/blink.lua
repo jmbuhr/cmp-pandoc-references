@@ -22,6 +22,19 @@ function source:get_trigger_characters()
 end
 
 function source:get_completions(ctx, callback)
+  local is_char_trigger = vim.list_contains(
+    self:get_trigger_characters(),
+    ctx.line:sub(ctx.bounds.start_col - 1, ctx.bounds.start_col - 1)
+  )
+  if not is_char_trigger then
+    callback({
+      items = {},
+      is_incomplete_backward = false,
+      is_incomplete_forward = false,
+    })
+    return function() end
+  end
+
   local lines = vim.api.nvim_buf_get_lines(ctx.bufnr or 0, 0, -1, false)
 
   local blink = require("blink.cmp.types")
