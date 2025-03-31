@@ -1,5 +1,3 @@
-local cmp = require 'cmp'
-
 --- @type lsp.CompletionItem[]
 local entries = {}
 local M = {}
@@ -39,7 +37,7 @@ end
 
 -- Parses the .bib file, formatting the completion item
 -- Adapted from http://rgieseke.github.io/ta-bibtex/
-local function parse_bib(filename)
+local function parse_bib(filename, fields)
   local file = io.open(filename, 'rb')
   assert(file, 'Could not open file ' .. filename)
   local bibentries = file:read '*all'
@@ -59,10 +57,10 @@ local function parse_bib(filename)
     --- @type lsp.CompletionItem
     local entry = {
       label = '@' .. bibentry:match '@%w+{(.-),',
-      kind = cmp.lsp.CompletionItemKind.Reference,
+      kind = fields.entry_kind,
       insertTextFormat = vim.lsp.protocol.InsertTextFormat.PlainText,
       documentation = {
-        kind = cmp.lsp.MarkupKind.Markdown,
+        kind = fields.documentation_kind,
         value = table.concat(doc, '\n'),
       },
     }
@@ -73,32 +71,32 @@ local function parse_bib(filename)
 end
 
 -- Parses the references in the current file, formatting for completion
-local function parse_ref(lines)
+local function parse_ref(lines, fields)
   local words = table.concat(lines, '\n')
   for ref in words:gmatch '{#(%a+[:%-][%w_-]+)' do
     local entry = {}
     entry.label = '@' .. ref
-    entry.kind = cmp.lsp.CompletionItemKind.Reference
+    entry.kind = fields.entry_kind
     table.insert(entries, entry)
   end
   for ref in words:gmatch '#| label: (%a+[:%-][%w_-]+)' do
     local entry = {}
     entry.label = '@' .. ref
-    entry.kind = cmp.lsp.CompletionItemKind.Reference
+    entry.kind = fields.entry_kind
     table.insert(entries, entry)
   end
 end
 
 -- Returns the entries as a table, clearing entries beforehand
-function M.get_entries(lines)
+function M.get_entries(lines, fields)
   local location = locate_bib(lines)
 
   entries = {}
 
   if location and vim.fn.filereadable(location) == 1 then
-    parse_bib(location)
+    parse_bib(location, fields)
   end
-  parse_ref(lines)
+  parse_ref(lines, fields)
 
   return entries
 end
