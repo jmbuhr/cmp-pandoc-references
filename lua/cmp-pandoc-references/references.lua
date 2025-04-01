@@ -5,7 +5,7 @@ local M = {}
 -- (Crudely) Locates the bibliography
 local function locate_bib(lines)
   for _, line in ipairs(lines) do
-    local location = string.match(line, [[bibliography:[ "']*([%w./%-\]+)["' ]*]])
+    local location = string.match(line, [[bibliography[%s]*[:=\(]["'%s]*([%w./%-\]+)["'%s]*[\)]?]])
     if location then
       return location
     end

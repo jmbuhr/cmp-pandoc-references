@@ -15,6 +15,7 @@ function source:enabled()
     or vim.o.filetype == 'markdown'
     or vim.o.filetype == 'rmd'
     or vim.o.filetype == 'quarto'
+    or vim.o.filetype == 'typst'
 end
 
 function source:get_trigger_characters()

@@ -11,6 +11,7 @@ source.is_available = function()
     or vim.o.filetype == 'markdown'
     or vim.o.filetype == 'rmd'
     or vim.o.filetype == 'quarto'
+    or vim.o.filetype == 'typst'
 end
 
 source.get_keyword_pattern = function()
